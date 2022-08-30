@@ -13,6 +13,8 @@ def get_path():
     filetypes = [("ese配置文件", "*.ese")]
     file_path = filedialog.askopenfilename(title='选择单个文件', filetypes=filetypes)
     print(file_path)
+    textbar.insert('end', '已选择目标路径：' + file_path + '\n')
+    textbar.see(end)
     path_var.set(file_path)
     global datain
     datain = file_path
@@ -29,6 +31,8 @@ def pathout(datain):
     str_list.insert(nPos, 'change')
     dataout = ''.join(str_list)
     print(dataout)
+    textbar.insert('end', '已生成输出路径：' + dataout + '\n')
+    textbar.see(end)
 
 
 # 按下start处理文本信息
@@ -36,15 +40,23 @@ def start():
     global change
     change = 'SECTORLINE:L_' + var_change.get()
     print(change)
+    textbar.insert('end', '已生成关键词：' + change + '\n')
+    textbar.see(end)
     global changeto
     changeto = ':' + var_changeto.get() + ':'
     print(changeto)
+    textbar.insert('end', '已生成插入词：' + changeto + '\n')
+    textbar.see(end)
     changestart()
 
 
 # 替换执行
 def changestart():
+    textbar.insert('end', '开始执行\n')
+    textbar.see(end)
     count = -1
+    countchange = 0
+    textbar.see(end)
     for count, linecount in enumerate(open(datain, 'r')):
         pass
     count += 1
@@ -54,9 +66,13 @@ def changestart():
     while num <= count:
         if change in line:
             print(line)
+            textbar.insert('end', '找到关键词：' + line + '\n')
+            textbar.see(end)
             while 1:
                 if "OWNER" in line:
                     print(line)
+                    textbar.insert('end', '原：' + line + '\n')
+                    textbar.see(end)
                     u1, u2 = line.split(':', 1)
                     print(u1)
                     print(u2)
@@ -65,7 +81,11 @@ def changestart():
                     f_w.write(line)
                     f_w.close()
                     print(line)
+                    textbar.insert('end', '改：' + line + '\n')
+                    textbar.see(end)
                     num = num + 1
+                    countchange = countchange + 1
+                    textbar.see(end)
                     break
                 else:
                     f_w = open(dataout, 'a')
@@ -83,12 +103,15 @@ def changestart():
     f.close()
     os.remove(datain)
     os.rename(dataout, datain)
+    textbar.insert('end', '已完成' + str(count) + '行扫描，共更改' + str(countchange) + '行数据\n')
+    textbar.see(end)
 
 
 # 初始化图形界面
+end = 10000.0
 window = tk.Tk()
 window.title('ese编辑器')
-window.geometry('500x300')
+window.geometry('500x400')
 # 欢迎使用
 l = tk.Label(window, text="你好，欢迎使用", font=('Arial', 16), width=30, height=2)
 l.pack()
@@ -115,5 +138,8 @@ entry_changeto.place(x=120, y=160)
 # start按钮
 btn_start = tk.Button(window, text='Start!', command=start)
 btn_start.place(x=120, y=200)
+# 运行状态更新
+textbar = tk.Text(window, height=6, width=59, font=('Arial', 10))
+textbar.place(x=10, y=250, anchor='nw')
 # 页面loop显示
 window.mainloop()
